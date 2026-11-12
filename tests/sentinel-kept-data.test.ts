@@ -31,7 +31,8 @@ describe('what a sentinel keeps', () => {
   function kept() {
     const home = mkdtempSync(path.join(os.tmpdir(), 'beluga-kept-'));
     dirs.push(home);
-    const s = setup({ home });
+    // The test's own clock, a minute after the run: a document's 14 days never run out on a real date.
+    const s = setup({ home, now: () => T + 60_000 });
     const sn = s.sentinels.create(brief);
     const run = s.sentinels.addHistory(sn.id, { by: 'schedule', trigger: { kind: 'schedule', summary: 'On its schedule' }, state: 'done', startedAt: T, endedAt: T + 1000, headline: 'Kept it', steps: sn.steps.map((st) => ({ id: st.id, state: 'done' as const })), tasks: [] }, { outputs: ['token=sk-ant-api03-abcdefghijklmnopqrstuvwxyz0123456789 and more'], report: '# Today\n\nAll good.' });
     s.sentinels.demoKeep(sn.id, run.id, [{ name: 'issues', label: 'Open issues', better: 'down', value: 9 }, { name: 'jobs', label: 'Jobs', better: 'none', columns: ['job', 'log'], columnTypes: [{ key: 'log', type: 'html', name: '{{job}}.html' }], rows: [{ job: 'deploy', log: '<p>done</p>' }] }]);
